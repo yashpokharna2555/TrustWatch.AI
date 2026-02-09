@@ -38,3 +38,8 @@ lerna-debug.log*
 # Misc
 *.tsbuildinfo
 .cache/
+
+# Test files (may contain secrets)
+test-*.js
+test-*.bat
+test-*.sh
