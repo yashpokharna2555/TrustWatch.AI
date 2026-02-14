@@ -19,37 +19,21 @@ import demoRoutes from './routes/demo';
 import testRoutes from './routes/test';
 import progressRoutes from './routes/progress';
 
-// Load .env file - try multiple possible locations
-const possibleEnvPaths = [
-  path.resolve(__dirname, '../.env'),             // Backend folder (src/../.env)
-  path.resolve(process.cwd(), '.env'),            // From current working directory
-  path.resolve(__dirname, '../../.env'),          // Two levels up from src
-  'C:\\Coding\\TrustWatch\\.env',                 // Absolute path as fallback
-  'C:\\Coding\\TrustWatch\\backend\\.env',        // Backend folder absolute
+// Load environment variables
+const envPaths = [
+  path.resolve(__dirname, '../.env'),      // backend/.env
+  path.resolve(__dirname, '../../.env'),   // root .env
 ];
 
-let envLoaded = false;
-for (const envPath of possibleEnvPaths) {
+for (const envPath of envPaths) {
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath });
-    console.log(`✅ Loaded .env from: ${envPath}`);
-    envLoaded = true;
+    if (process.env.NODE_ENV === 'development') {
+      logger.info(`Loaded .env from: ${envPath}`);
+    }
     break;
   }
 }
-
-if (!envLoaded) {
-  console.error('❌ Could not find .env file in any expected location');
-  console.log('Tried:', possibleEnvPaths);
-}
-
-// Debug: Log if API keys are loaded
-console.log('Environment check:');
-console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '✅ Loaded' : '❌ Missing');
-console.log('FIRECRAWL_API_KEY:', process.env.FIRECRAWL_API_KEY ? '✅ Loaded' : '❌ Missing');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? '✅ Loaded' : '❌ Missing');
-console.log('DEMO_MODE:', process.env.DEMO_MODE ? `✅ ${process.env.DEMO_MODE}` : '❌ Not set');
-console.log('');
 
 const app = express();
 const PORT = process.env.PORT || 5000;

@@ -60,6 +60,9 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
     const targets = [];
     const baseUrl = `https://${company.domain}`;
 
+    // Normalize categories to lowercase
+    const normalizedCategories = categories.map((c: string) => c.toLowerCase());
+
     // Check if this is a demo site (full path already included)
     const isDemoSite = company.domain.includes('demo-sites');
 
@@ -69,7 +72,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
       targets.push({ url: baseUrl, type: 'seed' });
     } else {
       // For regular domains, append standard paths
-      if (categories.includes('security')) {
+      if (normalizedCategories.includes('security')) {
         targets.push(
           { url: `${baseUrl}/security`, type: 'seed' },
           { url: `${baseUrl}/trust`, type: 'seed' },
@@ -77,21 +80,21 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
         );
       }
 
-      if (categories.includes('privacy')) {
+      if (normalizedCategories.includes('privacy')) {
         targets.push(
           { url: `${baseUrl}/privacy`, type: 'seed' },
           { url: `${baseUrl}/terms`, type: 'seed' }
         );
       }
 
-      if (categories.includes('sla')) {
+      if (normalizedCategories.includes('sla')) {
         targets.push(
           { url: `${baseUrl}/sla`, type: 'seed' },
           { url: `${baseUrl}/status`, type: 'seed' }
         );
       }
 
-      if (categories.includes('pricing')) {
+      if (normalizedCategories.includes('pricing')) {
         targets.push({ url: `${baseUrl}/pricing`, type: 'seed' });
       }
     }
