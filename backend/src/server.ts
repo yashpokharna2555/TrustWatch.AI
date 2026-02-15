@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { connectDB } from './config/database';
 import { logger } from './utils/logger';
-import { startCrawlScheduler } from './jobs/crawlScheduler';
+import { startCrawlScheduler } from './scheduler/crawlScheduler';
 
 // Import routes
 import authRoutes from './routes/auth';

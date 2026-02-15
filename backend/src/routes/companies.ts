@@ -4,7 +4,7 @@ import { Company } from '../models/Company';
 import { CrawlTarget } from '../models/CrawlTarget';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
-import { crawlService } from '../services/crawlService';
+import { enqueueCrawlTarget } from '../queue/enqueue';
 
 const router = express.Router();
 
@@ -117,16 +117,16 @@ router.post('/', authMiddleware, async (req: AuthRequest, res) => {
 
     logger.info(`Company added: ${displayName} (${domain})`, { userId: req.userId });
 
-    // Trigger initial crawl in background (don't wait for it)
-    setTimeout(async () => {
-      try {
-        logger.info(`Starting initial crawl for ${displayName}`);
-        await crawlService.crawlCompany(company._id);
-        logger.info(`Initial crawl completed for ${displayName}`);
-      } catch (error: any) {
-        logger.error(`Initial crawl failed for ${displayName}:`, error.message);
-      }
-    }, 1000); // Start after 1 second
+    // Enqueue initial crawl jobs (don't execute directly)
+    const createdTargets = await CrawlTarget.find({ companyId: company._id });
+    for (const target of createdTargets) {
+      await enqueueCrawlTarget({
+        companyId: company._id.toString(),
+        targetId: target._id.toString(),
+        url: target.url,
+      });
+    }
+    logger.info(`Enqueued ${createdTargets.length} crawl jobs for ${displayName}`);
 
     res.json({ company });
   } catch (error: any) {

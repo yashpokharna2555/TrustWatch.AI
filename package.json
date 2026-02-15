@@ -8,11 +8,15 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:worker\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:worker": "npm run dev:worker --workspace=backend",
     "build": "npm run build --workspaces",
-    "install:all": "npm install && npm install --workspaces"
+    "install:all": "npm install && npm install --workspaces",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:worker\"",
+    "start:backend": "npm run start --workspace=backend",
+    "start:worker": "npm run start:worker --workspace=backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

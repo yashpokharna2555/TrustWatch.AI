@@ -34,6 +34,11 @@ When a vendor loses their SOC2 certification or weakens their privacy policy, yo
 
 - **Node.js 18+** and npm
 - **MongoDB Atlas** account (or local MongoDB)
+- **Redis** (for job queue)
+  - macOS: `brew install redis && brew services start redis`
+  - Windows: Use Docker or WSL
+  - Linux: `sudo apt-get install redis-server`
+  - Or use Docker: `docker-compose up -d`
 - **API Keys**: Firecrawl, Resend, Reducto
 
 ### Installation
@@ -45,16 +50,27 @@ cd trustwatch
 npm install
 npm run install:all
 
-# 2. Set up environment variables
+# 2. Start Redis (required for job queue)
+redis-server
+# OR using Docker:
+docker-compose up -d
+
+# 3. Test Redis connection
+cd backend
+npx tsx src/test-queue.ts
+
+# 4. Set up environment variables
 cp .env.example .env
 # Edit .env with your API keys and MongoDB URI
 
-# 3. Start the app
+# 5. Start all services
 npm run dev
 ```
 
-**Frontend:** http://localhost:3000  
-**Backend API:** http://localhost:5000
+This starts:
+- **Frontend:** http://localhost:3000  
+- **Backend API:** http://localhost:5000
+- **Workers:** Background job processors
 
 ---
 
@@ -185,6 +201,96 @@ Automatic 0-100 risk score per company:
 - **Reducto** - PDF parsing with OCR
 - **Resend** - Email alerts
 - **MongoDB Atlas** - Cloud database
+- **Redis + BullMQ** - Job queue for background processing
+
+---
+
+## 🏛️ Architecture
+
+**TrustWatch uses a production-grade job queue architecture for reliability and scalability.**
+
+### Three-Process Model
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   API SERVER    │         │   SCHEDULER     │         │    WORKERS      │
+│                 │         │                 │         │                 │
+│  • HTTP APIs    │◄────────┤  • Cron tasks   ├────────►│  • Crawl jobs   │
+│  • Auth         │         │  • Enqueue jobs │         │  • PDF parsing  │
+│  • Enqueue jobs │         │  • No execution │         │  • Email alerts │
+│  • No execution │         │                 │         │  • Retries      │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+         │                                                        │
+         └────────────────────────┬───────────────────────────────┘
+                                  │
+                          ┌───────▼────────┐
+                          │  Redis Queue   │
+                          │   (BullMQ)     │
+                          └────────────────┘
+```
+
+### Key Design Principles
+
+1. **Separation of Concerns**
+   - API server = fast, stateless, never blocks on heavy work
+   - Workers = process background jobs, can be horizontally scaled
+   - Scheduler = decides WHAT to crawl, not HOW to crawl
+
+2. **Durability**
+   - All jobs persisted in Redis before execution
+   - Process crashes don't lose work
+   - Failed jobs automatically retry with exponential backoff
+
+3. **Idempotency**
+   - Each job has a unique `jobId` (e.g., `crawl:companyId:targetId`)
+   - Same job won't execute twice
+   - Safe to re-enqueue
+
+4. **Horizontal Scalability**
+   - Run multiple workers: `npm run start:worker` on different machines
+   - Workers share the same Redis queue
+   - Scheduler uses leader election (only one active)
+
+5. **Fault Tolerance**
+   - Failed jobs retry up to 3 times (5s, 10s, 20s backoff)
+   - After max retries → marked as failed, logged, can be inspected
+   - Workers crash-safe: jobs return to queue
+
+### Job Types
+
+| Job Type | Description | Retry | Enqueued By |
+|----------|-------------|-------|-------------|
+| `crawl_target` | Scrape a URL, extract claims, detect changes | 3x | API, Scheduler |
+| `process_evidence` | Parse PDF with Reducto, extract fields | 3x | Workers |
+| `send_alert_email` | Send critical alert via Resend | 3x | Workers |
+
+### Running the System
+
+**Development (single machine):**
+```bash
+# Terminal 1: API + Scheduler
+npm run dev
+
+# Terminal 2: Workers
+cd backend
+npm run dev:worker
+
+# Terminal 3: Redis (required)
+redis-server
+```
+
+**Production:**
+```bash
+# API Server (1 instance)
+npm run start
+
+# Worker Pool (scale as needed)
+npm run start:worker  # Machine 1
+npm run start:worker  # Machine 2
+npm run start:worker  # Machine 3...
+
+# Redis (managed service recommended: AWS ElastiCache, Redis Cloud)
+```
 
 ---
 

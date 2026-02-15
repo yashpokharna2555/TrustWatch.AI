@@ -1,8 +1,9 @@
 import express from 'express';
 import { Types } from 'mongoose';
 import { Company } from '../models/Company';
+import { CrawlTarget } from '../models/CrawlTarget';
 import { CrawlRun } from '../models/CrawlRun';
-import { crawlService } from '../services/crawlService';
+import { enqueueCrawlTarget } from '../queue/enqueue';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
@@ -26,12 +27,17 @@ router.post('/run', authMiddleware, async (req: AuthRequest, res) => {
 
       logger.info(`Manual crawl triggered for company ${companyId}`, { userId: req.userId });
 
-      // Run crawl in background
-      crawlService.crawlCompany(company._id).catch(err => {
-        logger.error('Crawl failed:', err);
-      });
+      // Enqueue crawl jobs (don't execute directly)
+      const targets = await CrawlTarget.find({ companyId: company._id });
+      for (const target of targets) {
+        await enqueueCrawlTarget({
+          companyId: company._id.toString(),
+          targetId: target._id.toString(),
+          url: target.url,
+        });
+      }
 
-      res.json({ message: 'Crawl started', companyId });
+      res.json({ message: 'Crawl jobs enqueued', companyId, jobsEnqueued: targets.length });
     } else {
       // Crawl all companies for user
       const companies = await Company.find({ userId: req.userId });
@@ -41,14 +47,22 @@ router.post('/run', authMiddleware, async (req: AuthRequest, res) => {
         count: companies.length,
       });
 
-      // Run crawls in background
+      let totalJobsEnqueued = 0;
+
+      // Enqueue crawls for all companies
       for (const company of companies) {
-        crawlService.crawlCompany(company._id).catch(err => {
-          logger.error(`Crawl failed for ${company._id}:`, err);
-        });
+        const targets = await CrawlTarget.find({ companyId: company._id });
+        for (const target of targets) {
+          await enqueueCrawlTarget({
+            companyId: company._id.toString(),
+            targetId: target._id.toString(),
+            url: target.url,
+          });
+          totalJobsEnqueued++;
+        }
       }
 
-      res.json({ message: 'Crawl started for all companies', count: companies.length });
+      res.json({ message: 'Crawl jobs enqueued for all companies', count: companies.length, jobsEnqueued: totalJobsEnqueued });
     }
   } catch (error: any) {
     logger.error('Crawl run error:', error);
