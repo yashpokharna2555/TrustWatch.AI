@@ -13,7 +13,7 @@
 import { Worker, Job } from 'bullmq';
 import { Types } from 'mongoose';
 import { createHash } from 'crypto';
-import { crawlQueue } from '../queue/queue';
+import { crawlQueue, redisConnection } from '../queue/queue';
 import { JobType, CrawlTargetJobData } from '../queue/jobTypes';
 import { enqueueEvidenceProcessing } from '../queue/enqueue';
 import { Company } from '../models/Company';
@@ -30,13 +30,6 @@ import { demoAdapter } from '../services/demoAdapter';
 import { sendAlertEmail } from '../services/email';
 import { emitCrawlProgress } from '../utils/crawlProgress';
 import { logger } from '../utils/logger';
-
-// Redis connection config for worker
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-};
 
 /**
  * Main crawl worker processor
@@ -456,7 +449,7 @@ export function startCrawlWorker() {
       }
     },
     {
-      connection: redisConfig,
+      connection: redisConnection,
       concurrency: 3, // Process up to 3 crawls in parallel
     }
   );

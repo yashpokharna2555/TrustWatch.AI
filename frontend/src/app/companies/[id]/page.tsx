@@ -55,64 +55,80 @@ export default function CompanyPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-4 rounded-2xl shadow-lg inline-block mb-4 animate-pulse">
+            <span className="text-4xl">🔍</span>
+          </div>
+          <div className="text-gray-700 font-semibold text-lg">Loading company details...</div>
+        </div>
       </div>
     );
   }
 
   if (!company) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex items-center justify-center">
         <div className="text-gray-600">Company not found</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       {/* Header */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-2">
-            <Link href="/dashboard" className="text-2xl">🔍</Link>
-            <h1 className="text-2xl font-bold text-gray-900">
-              <Link href="/dashboard">TrustWatch</Link>
-            </h1>
+          <div className="flex items-center space-x-3">
+            <Link href="/dashboard" className="flex items-center space-x-3 group">
+              <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-2 rounded-xl shadow-lg group-hover:shadow-blue-500/40 transition-all">
+                <span className="text-2xl">🔍</span>
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">TrustWatch</h1>
+            </Link>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Link href="/dashboard" className="text-blue-600 hover:underline">
-            ← Back to Dashboard
+          <Link
+            href="/dashboard"
+            className="text-blue-600 hover:text-blue-700 font-semibold flex items-center space-x-2 hover:underline transition-all"
+          >
+            <span>←</span>
+            <span>Back to Dashboard</span>
           </Link>
         </div>
 
         {/* Company Header */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl border-2 border-blue-200 p-8 mb-6">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-3xl font-bold mb-2">{company.displayName}</h2>
-              <p className="text-gray-600 mb-4">{company.domain}</p>
-              <div className="flex space-x-2">
+              <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">{company.displayName}</h2>
+              <div className="flex items-center space-x-2 text-gray-600 mb-4">
+                <span className="text-lg">🌐</span>
+                <p className="text-lg font-medium">{company.domain}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {company.categoriesEnabled.map((cat: string) => (
                   <span
                     key={cat}
-                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm capitalize"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-md capitalize"
                   >
                     {cat}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold text-red-600">{company.riskScore}</div>
-              <div className="text-sm text-gray-500">Risk Score</div>
+            <div className="text-right bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+              <div className={`text-5xl font-bold ${
+                company.riskScore >= 50 ? 'text-red-600' : company.riskScore >= 20 ? 'text-amber-600' : 'text-green-600'
+              }`}>{company.riskScore}</div>
+              <div className="text-sm font-bold text-gray-700 mt-2">Risk Score</div>
               {company.lastCrawledAt && (
-                <div className="text-xs text-gray-500 mt-2">
-                  Last crawled: {new Date(company.lastCrawledAt).toLocaleDateString()}
+                <div className="text-xs text-gray-500 mt-3 bg-gray-100 px-3 py-1.5 rounded-lg">
+                  🕐 {new Date(company.lastCrawledAt).toLocaleDateString()}
                 </div>
               )}
             </div>
@@ -120,37 +136,40 @@ export default function CompanyPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="border-b">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 mb-6">
+          <div className="border-b border-gray-200/50">
             <div className="flex">
               <button
                 onClick={() => setActiveTab('claims')}
-                className={`px-6 py-4 font-semibold ${
+                className={`px-8 py-5 font-bold text-base transition-all ${
                   activeTab === 'claims'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
+                <span className="mr-2">📋</span>
                 Claims ({claimsList.length})
               </button>
               <button
                 onClick={() => setActiveTab('changes')}
-                className={`px-6 py-4 font-semibold ${
+                className={`px-8 py-5 font-bold text-base transition-all ${
                   activeTab === 'changes'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
+                <span className="mr-2">🔔</span>
                 Changes ({eventsList.length})
               </button>
               <button
                 onClick={() => setActiveTab('evidence')}
-                className={`px-6 py-4 font-semibold ${
+                className={`px-8 py-5 font-bold text-base transition-all ${
                   activeTab === 'evidence'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'border-b-4 border-blue-600 text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
+                <span className="mr-2">📄</span>
                 Evidence ({evidenceList.length})
               </button>
             </div>
@@ -197,13 +216,48 @@ function ClaimsTab({ claims }: { claims: any[] }) {
     return explanations[key] || 'Security or compliance claim detected';
   };
 
+  // Helper function to clean and truncate snippets
+  const cleanSnippet = (snippet: string): { text: string; isTruncated: boolean; isUnreadable: boolean } => {
+    if (!snippet) return { text: 'No text available', isTruncated: false, isUnreadable: true };
+    
+    // More aggressive detection of encoded/technical garbage
+    const encodedPercentage = (snippet.match(/%[0-9A-F]{2}/gi) || []).length / snippet.length;
+    const hasLongToken = /[A-Za-z0-9+/=]{100,}/.test(snippet);
+    const hasNoSpaces = snippet.length > 50 && !snippet.includes(' ');
+    const hasHighNonAlphaRatio = (snippet.match(/[^a-zA-Z\s]/g) || []).length / snippet.length > 0.4;
+    
+    // Detect: URL encoding, long tokens, no-space strings, high special char ratio
+    if (encodedPercentage > 0.15 || hasLongToken || (hasNoSpaces && hasHighNonAlphaRatio)) {
+      return { 
+        text: 'Technical data detected - not a human-readable claim', 
+        isTruncated: false, 
+        isUnreadable: true 
+      };
+    }
+    
+    // Truncate very long snippets
+    const maxLength = 300;
+    if (snippet.length > maxLength) {
+      return {
+        text: snippet.substring(0, maxLength) + '...',
+        isTruncated: true,
+        isUnreadable: false
+      };
+    }
+    
+    return { text: snippet, isTruncated: false, isUnreadable: false };
+  };
+
   if (claims.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-4xl mb-3">🔍</div>
-        <p className="text-gray-600 mb-2">No claims detected yet</p>
-        <p className="text-sm text-gray-500">
-          Claims are security promises and certifications we automatically extract from their website.
+      <div className="text-center py-16">
+        <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-6 rounded-2xl inline-block mb-4">
+          <div className="text-5xl">🔍</div>
+        </div>
+        <p className="text-gray-700 mb-2 font-semibold text-lg">No claims detected yet</p>
+        <p className="text-sm text-gray-600 max-w-md mx-auto">
+          Claims are security promises and certifications we automatically extract from their website. 
+          Run a scan to start monitoring.
         </p>
       </div>
     );
@@ -211,56 +265,92 @@ function ClaimsTab({ claims }: { claims: any[] }) {
 
   return (
     <div className="space-y-4">
-      {claims.map((claim) => (
-        <Link
-          key={claim._id}
-          href={`/claims/${claim._id}`}
-          className="block p-5 border rounded-lg hover:bg-gray-50 transition-all hover:shadow-md"
-        >
-          <div className="flex justify-between items-start mb-3">
-            <div>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  claim.currentStatus === 'ACTIVE'
-                    ? 'bg-green-100 text-green-700'
-                    : claim.currentStatus === 'REMOVED'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {claim.currentStatus === 'ACTIVE' ? '✅ ACTIVE' : '❌ REMOVED'}
+      {claims.map((claim) => {
+        const snippetInfo = cleanSnippet(claim.currentSnippet);
+        
+        return (
+          <Link
+            key={claim._id}
+            href={`/claims/${claim._id}`}
+            className="block p-6 border-2 rounded-2xl hover:shadow-xl transition-all transform hover:scale-[1.02] bg-gradient-to-r from-white to-gray-50 border-gray-200 hover:border-blue-400"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <span
+                  className={`px-4 py-2 rounded-xl text-sm font-bold shadow-md ${
+                    claim.currentStatus === 'ACTIVE'
+                      ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                      : claim.currentStatus === 'REMOVED'
+                      ? 'bg-red-100 text-red-700 border-2 border-red-300'
+                      : 'bg-gray-100 text-gray-700 border-2 border-gray-300'
+                  }`}
+                >
+                  {claim.currentStatus === 'ACTIVE' ? '✅ ACTIVE' : '❌ REMOVED'}
+                </span>
+              </div>
+              <div className="text-sm text-gray-600 flex items-center bg-gray-100 px-3 py-2 rounded-lg border border-gray-300 font-semibold">
+                <span className="mr-1">🎯</span>
+                {Math.round(claim.confidence * 100)}% confidence
+              </div>
+            </div>
+            
+            <div className="font-bold text-2xl mb-3 text-gray-900">
+              {claim.normalizedKey.replace(/_/g, ' ')}
+            </div>
+            
+            <div className="text-sm text-blue-700 mb-4 bg-blue-50 px-4 py-3 rounded-xl border-l-4 border-blue-400 font-medium">
+              💡 {getClaimExplanation(claim.normalizedKey)}
+            </div>
+            
+            {snippetInfo.isUnreadable ? (
+              <div className="text-sm text-amber-800 bg-amber-50 p-5 rounded-xl border-2 border-amber-300 shadow-sm overflow-hidden">
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl flex-shrink-0">⚠️</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold mb-1">Unreadable Data Detected</div>
+                    <div className="text-xs leading-relaxed break-words">
+                      The AI extracted technical data (tokens, encoded strings) instead of human-readable text. 
+                      This claim exists but the extracted snippet is not user-friendly. 
+                      <Link 
+                        href={claim.currentSourceUrl} 
+                        target="_blank" 
+                        className="text-amber-700 underline font-semibold hover:text-amber-900"
+                      >
+                        {' '}View source page
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-800 bg-gradient-to-r from-gray-50 to-white p-5 rounded-xl border-2 border-gray-200 shadow-sm overflow-hidden">
+                <div className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wide">📝 Exact quote from their website:</div>
+                <div className="italic leading-relaxed break-words">"{snippetInfo.text}"</div>
+                {snippetInfo.isTruncated && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    <Link 
+                      href={`/claims/${claim._id}`}
+                      className="text-blue-600 hover:underline font-semibold"
+                    >
+                      Read full text →
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-600 mt-4 flex items-center space-x-4 bg-gray-100 px-4 py-2 rounded-lg">
+              <span>
+                <span className="font-bold">First seen:</span> {new Date(claim.firstSeenAt).toLocaleDateString()}
+              </span>
+              <span>•</span>
+              <span>
+                <span className="font-bold">Last seen:</span> {new Date(claim.lastSeenAt).toLocaleDateString()}
               </span>
             </div>
-            <div className="text-xs text-gray-500 flex items-center">
-              <span className="mr-1">🎯</span>
-              Confidence: {Math.round(claim.confidence * 100)}%
-            </div>
-          </div>
-          
-          <div className="font-bold text-lg mb-2 text-gray-800">
-            {claim.normalizedKey.replace(/_/g, ' ')}
-          </div>
-          
-          <div className="text-sm text-blue-600 mb-3 bg-blue-50 px-3 py-2 rounded inline-block">
-            💡 {getClaimExplanation(claim.normalizedKey)}
-          </div>
-          
-          <div className="text-sm text-gray-700 bg-gray-50 p-4 rounded border-l-4 border-blue-400">
-            <div className="text-xs text-gray-500 mb-1">📝 Exact text from their website:</div>
-            <div className="italic">"{claim.currentSnippet}"</div>
-          </div>
-          
-          <div className="text-xs text-gray-500 mt-3 flex items-center space-x-4">
-            <span>
-              <span className="font-semibold">First seen:</span> {new Date(claim.firstSeenAt).toLocaleDateString()}
-            </span>
-            <span>•</span>
-            <span>
-              <span className="font-semibold">Last seen:</span> {new Date(claim.lastSeenAt).toLocaleDateString()}
-            </span>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -306,13 +396,27 @@ function ChangesTab({ events }: { events: any[] }) {
     return explanations[severity] || '';
   };
 
-  if (events.length === 0) {
+  // Filter out "ADDED" events that are actually first-time extractions (not real changes)
+  // Only show ADDED events if they are truly new claims appearing after initial crawl
+  const filteredEvents = events.filter(event => {
+    // Keep all non-ADDED events
+    if (event.eventType !== 'ADDED') return true;
+    
+    // For ADDED events, only show if severity is Medium or Critical
+    // This filters out initial extractions which are typically marked as "Info"
+    return event.severity !== 'Info';
+  });
+
+  if (filteredEvents.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-4xl mb-3">✅</div>
-        <p className="text-gray-600 mb-2">No changes detected yet</p>
-        <p className="text-sm text-gray-500">
-          Changes appear here when we detect modifications to their security promises or compliance claims.
+      <div className="text-center py-16">
+        <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-2xl inline-block mb-4">
+          <div className="text-5xl">✅</div>
+        </div>
+        <p className="text-gray-700 mb-2 font-semibold text-lg">No changes detected</p>
+        <p className="text-sm text-gray-600 max-w-md mx-auto">
+          Changes appear here when we detect modifications to their security promises or compliance claims. 
+          Your vendor's trust claims remain stable!
         </p>
       </div>
     );
@@ -320,60 +424,61 @@ function ChangesTab({ events }: { events: any[] }) {
 
   return (
     <div className="space-y-4">
-      {events.map((event) => {
+      {filteredEvents.map((event) => {
         const explanation = getEventExplanation(event.eventType, event.severity);
         return (
           <Link
             key={event._id}
             href={`/events/${event._id}`}
-            className="block p-5 border rounded-lg hover:bg-gray-50 transition-all hover:shadow-md"
+            className="block p-6 border-2 rounded-2xl hover:shadow-xl transition-all transform hover:scale-[1.02] bg-gradient-to-r from-white to-gray-50 border-gray-200 hover:border-blue-400"
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold shadow-md ${
                     event.severity === 'Critical'
-                      ? 'bg-red-100 text-red-700'
+                      ? 'bg-red-100 text-red-700 border-2 border-red-300'
                       : event.severity === 'Medium'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-blue-100 text-blue-700'
+                      ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
+                      : 'bg-blue-100 text-blue-700 border-2 border-blue-300'
                   }`}
                   title={getSeverityExplanation(event.severity)}
                 >
                   {event.severity === 'Critical' ? '🔴' : event.severity === 'Medium' ? '🟡' : '🔵'} {event.severity.toUpperCase()}
                 </span>
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-700">
+                <span className="text-sm bg-gray-100 px-3 py-2 rounded-lg text-gray-700 font-semibold border border-gray-300">
                   {explanation.icon} {event.eventType.replace(/_/g, ' ')}
                 </span>
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg border border-gray-300">
                 📅 {new Date(event.detectedAt).toLocaleDateString()}
               </div>
             </div>
             
-            <div className="font-bold text-lg mb-2 text-gray-800">
+            <div className="font-bold text-xl mb-3 text-gray-900">
               {event.normalizedKey.replace(/_/g, ' ')}
             </div>
             
-            <div className="text-sm text-gray-600 mb-3 bg-blue-50 px-3 py-2 rounded">
-              <div className="font-semibold mb-1">💡 What this means:</div>
+            <div className="text-sm text-gray-700 mb-4 bg-blue-50 px-4 py-3 rounded-xl border-l-4 border-blue-400">
+              <div className="font-bold mb-1 text-blue-900">💡 What this means:</div>
               <div>{explanation.text}</div>
             </div>
             
-            <div className={`text-sm p-3 rounded border-l-4 ${
+            <div className={`text-sm p-4 rounded-xl border-l-4 font-medium ${
               event.severity === 'Critical' 
-                ? 'bg-red-50 border-red-400 text-red-800' 
+                ? 'bg-red-50 border-red-500 text-red-900' 
                 : event.severity === 'Medium'
-                ? 'bg-yellow-50 border-yellow-400 text-yellow-800'
-                : 'bg-blue-50 border-blue-400 text-blue-800'
+                ? 'bg-yellow-50 border-yellow-500 text-yellow-900'
+                : 'bg-blue-50 border-blue-500 text-blue-900'
             }`}>
-              <div className="font-semibold mb-1">👉 What to do:</div>
+              <div className="font-bold mb-1">👉 What to do:</div>
               <div>{explanation.action}</div>
             </div>
             
             {event.acknowledged && (
-              <div className="mt-3 text-xs text-green-600 bg-green-50 px-3 py-2 rounded inline-block">
-                ✓ Acknowledged
+              <div className="mt-4 text-sm text-green-700 bg-green-100 px-4 py-2 rounded-xl inline-flex items-center space-x-2 border-2 border-green-300 font-semibold">
+                <span>✓</span>
+                <span>Acknowledged</span>
               </div>
             )}
           </Link>

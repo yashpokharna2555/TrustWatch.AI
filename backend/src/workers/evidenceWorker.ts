@@ -10,18 +10,11 @@
  */
 
 import { Worker, Job } from 'bullmq';
-import { evidenceQueue } from '../queue/queue';
+import { evidenceQueue, redisConnection } from '../queue/queue';
 import { JobType, ProcessEvidenceJobData } from '../queue/jobTypes';
 import { Evidence } from '../models/Evidence';
 import { reductoClient } from '../services/reducto';
 import { logger } from '../utils/logger';
-
-// Redis connection config for worker
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-};
 
 /**
  * Main evidence processor
@@ -91,7 +84,7 @@ export function startEvidenceWorker() {
       }
     },
     {
-      connection: redisConfig,
+      connection: redisConnection,
       concurrency: 2, // Process up to 2 PDFs in parallel
     }
   );

@@ -12,6 +12,7 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.69.2",
@@ -24,7 +25,8 @@
     "mongoose": "^8.0.3",
     "node-cron": "^3.0.3",
     "resend": "^3.0.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

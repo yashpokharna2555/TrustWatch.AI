@@ -28,38 +28,53 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+
+      {/* Signup Card */}
+      <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-10 w-full max-w-md border border-white/20">
+        {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🔍</div>
-          <h1 className="text-3xl font-bold text-gray-900">TrustWatch</h1>
-          <p className="text-gray-600 mt-2">Create your account</p>
+          <div className="inline-block mb-4">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-3 rounded-2xl shadow-lg">
+              <span className="text-4xl">🔍</span>
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2">Get Started Free</h1>
+          <p className="text-slate-300">Create your TrustWatch account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-              {error}
+            <div className="bg-red-500/20 border border-red-400/50 text-red-200 p-4 rounded-xl text-sm backdrop-blur-sm animate-shake">
+              <div className="flex items-center space-x-2">
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+            <label htmlFor="email" className="block text-sm font-semibold text-slate-200 mb-2">
+              Email Address
             </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="you@example.com"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-slate-400 backdrop-blur-sm transition-all"
+              placeholder="you@company.com"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-semibold text-slate-200 mb-2">
               Password
             </label>
             <input
@@ -67,26 +82,35 @@ export default function SignupPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-slate-400 backdrop-blur-sm transition-all"
               placeholder="••••••••"
               required
               minLength={6}
             />
+            <p className="text-xs text-slate-400 mt-2">Minimum 6 characters</p>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 font-bold text-lg shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 disabled:transform-none"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? (
+              <span className="flex items-center justify-center space-x-2">
+                <span className="animate-spin">⏳</span>
+                <span>Creating account...</span>
+              </span>
+            ) : (
+              'Create Account →'
+            )}
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        {/* Login Link */}
+        <p className="text-center text-slate-300 mt-8">
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">
-            Login
+          <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 font-semibold hover:underline transition-colors">
+            Sign In
           </Link>
         </p>
       </div>
